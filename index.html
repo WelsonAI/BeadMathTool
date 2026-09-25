@@ -3,233 +3,333 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Bead Counting Tool EN ZH BM</title>
+  <title>Bead Math Tool EN ZH BM</title>
 
   <style>
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --page-yellow: #ffe7b0;
+      --sunny-yellow: #ffca4f;
+      --ink: #3f321e;
+      --card: rgba(255, 255, 255, .76);
+      --card-border: rgba(128, 83, 16, .14);
+      --success: #2f9d50;
+      --error: #d95642;
+      --hint: #e6a117;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
 
     body {
       margin: 0;
-      min-height: 100dvh;
-      background: #f2f2f2;
+      width: 100%;
+      height: 100dvh;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(255, 255, 255, .72) 0 5px, transparent 6px),
+        radial-gradient(circle at 86% 18%, rgba(255, 255, 255, .5) 0 4px, transparent 5px),
+        linear-gradient(180deg, #fff3d4 0%, var(--page-yellow) 62%, #ffdda0 100%);
+      background-size: 160px 160px, 210px 210px, auto;
+      color: var(--ink);
       font-family: Arial, Helvetica, sans-serif;
       overflow: hidden;
+      overscroll-behavior: none;
       user-select: none;
+      isolation: isolate;
     }
 
-    .tool {
-      width: min(96vw, 920px);
-      height: 100dvh;
-      margin: 0 auto;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    button,
+    input,
+    select {
+      font: inherit;
     }
 
-    .top-panel {
-      position: relative;
-      min-height: 144px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .display {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      color: #222;
-      line-height: 1.15;
-      padding: 0 6px;
-      width: 100%;
-    }
-
-    .number-line {
-      font-size: clamp(42px, 7vw, 70px);
-      font-weight: 800;
-      letter-spacing: 3px;
-    }
-
-    .number-line.hidden,
-    .word-line.hidden {
-      display: none;
-    }
-
-    .word-line {
-      margin-top: 4px;
-      min-height: 28px;
-      font-size: clamp(18px, 2.8vw, 26px);
-      font-weight: 800;
-      letter-spacing: .5px;
-      padding: 0 8px;
-      overflow-wrap: anywhere;
-    }
-
-    .lang-switch {
-      position: static;
-      right: auto;
-      top: auto;
-      display: flex;
-      gap: 5px;
-      z-index: 100;
-      background: #ffffff;
-      padding: 5px;
-      border-radius: 13px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.10);
-      margin: 0 auto;
-    }
-
-    .lang-select {
-      appearance: none;
-      -webkit-appearance: none;
-      min-width: 112px;
-      height: 34px;
-      border-radius: 10px;
-      border: 2px solid #222;
-      background: #fff;
-      color: #111;
-      font-size: 14px;
+    button {
+      border: 2px solid #5f431c;
+      border-radius: 11px;
+      background: #fffdf7;
+      color: var(--ink);
       font-weight: 900;
       cursor: pointer;
-      padding: 5px 30px 5px 10px;
-      background-image:
-        linear-gradient(45deg, transparent 50%, #222 50%),
-        linear-gradient(135deg, #222 50%, transparent 50%);
-      background-position:
-        calc(100% - 16px) 14px,
-        calc(100% - 10px) 14px;
-      background-size: 6px 6px, 6px 6px;
-      background-repeat: no-repeat;
+      box-shadow: 0 3px 0 rgba(95, 67, 28, .2), 0 6px 14px rgba(95, 67, 28, .1);
+      transition: transform 100ms ease, box-shadow 100ms ease, background 120ms ease;
     }
 
-    .lang-select:focus {
-      outline: 3px solid rgba(0,0,0,.14);
+    button:hover:not(:disabled) {
+      background: #fff8e7;
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(95, 67, 28, .2), 0 3px 8px rgba(95, 67, 28, .1);
+    }
+
+    button:disabled,
+    input:disabled,
+    select:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(66, 151, 235, .42);
       outline-offset: 2px;
     }
 
-    .answer-btn {
-      min-width: 66px;
-      height: 34px;
-      border-radius: 10px;
-      border: 2px solid #222;
-      background: #fff;
-      color: #111;
-      font-size: 14px;
-      font-weight: 900;
-      cursor: pointer;
-      padding: 5px 8px;
-    }
-
-    .answer-btn:active {
-      transform: scale(.98);
-    }
-
-    .speak-btn {
-      min-width: 42px;
-      height: 34px;
-      border-radius: 10px;
-      border: 2px solid #222;
-      background: #fff;
-      color: #111;
-      font-size: 15px;
-      font-weight: 900;
-      cursor: pointer;
-      padding: 5px 8px;
-    }
-
-    .speak-btn:active {
-      transform: scale(.98);
-    }
-
-    .speak-btn:disabled {
-      opacity: .42;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .answer-controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    .tool {
+      position: relative;
+      z-index: 2;
+      width: min(96vw, 760px);
+      height: 100dvh;
+      min-height: 0;
+      margin: 0 auto;
+      padding: 10px 10px clamp(88px, 12vh, 112px);
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
       gap: 8px;
-      margin-top: 2px;
+      overflow: hidden;
     }
 
-    .number-input-panel {
-      width: min(100%, 720px);
+    .top-panel,
+    .control-panel,
+    .tray {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 26px rgba(119, 76, 13, .1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .top-panel {
+      min-height: 154px;
+      padding: 9px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border-radius: 22px;
+    }
+
+    .top-toolbar {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-wrap: wrap;
       gap: 8px;
-      margin: 0 auto 2px;
-      padding: 8px;
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.10);
     }
 
-    .input-label {
-      font-size: 15px;
-      font-weight: 900;
-      color: #222;
+    .lang-switch,
+    .mode-switch {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, .86);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .09);
     }
 
-    .number-input {
-      width: 130px;
-      height: 36px;
+    .lang-select {
+      appearance: none;
+      -webkit-appearance: none;
+      min-width: 124px;
+      height: 34px;
+      padding: 5px 30px 5px 10px;
+      border: 2px solid #5f431c;
       border-radius: 10px;
-      border: 2px solid #222;
-      padding: 5px 10px;
-      font-size: 16px;
-      font-weight: 900;
-      text-align: center;
-      color: #111;
-      background: #fff;
-    }
-
-    .show-number-btn {
-      min-width: 70px;
-      height: 36px;
-      border-radius: 10px;
-      border: 2px solid #222;
-      background: #fff;
-      color: #111;
+      background:
+        linear-gradient(45deg, transparent 50%, #5f431c 50%) calc(100% - 15px) 14px / 6px 6px no-repeat,
+        linear-gradient(135deg, #5f431c 50%, transparent 50%) calc(100% - 9px) 14px / 6px 6px no-repeat,
+        #fffdf7;
+      color: var(--ink);
       font-size: 14px;
       font-weight: 900;
       cursor: pointer;
-      padding: 5px 10px;
     }
 
-    .input-error {
-      flex-basis: 100%;
+    .sound-toggle,
+    .mode-btn {
+      height: 34px;
+      min-width: 76px;
+      padding: 5px 10px;
+      font-size: 13px;
+    }
+
+    .mode-btn {
+      min-width: 72px;
+      border-color: transparent;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    .mode-btn[aria-pressed="true"] {
+      border-color: #6b4a18;
+      background: #ffda7d;
+      box-shadow: 0 2px 0 rgba(95, 67, 28, .18);
+    }
+
+    .instruction-line {
       min-height: 18px;
-      line-height: 1.2;
-      color: #b00020;
-      font-size: 14px;
+      color: #6f4e1c;
+      font-size: 13px;
       font-weight: 900;
       text-align: center;
     }
 
-    .input-error.hidden {
-      display: none;
+    .display {
+      width: 100%;
+      min-height: 58px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #5a3d16;
+      line-height: 1.05;
+      text-align: center;
     }
 
+    .number-line {
+      font-size: clamp(38px, 6.8vw, 60px);
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
+
+    .word-line {
+      min-height: 22px;
+      margin-top: 2px;
+      padding: 0 6px;
+      font-size: clamp(16px, 2.4vw, 22px);
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .answer-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .answer-btn,
+    .speak-btn {
+      height: 32px;
+      min-width: 66px;
+      padding: 4px 9px;
+      font-size: 13px;
+    }
+
+    .speak-btn {
+      min-width: 40px;
+    }
+
+    .practice-feedback {
+      min-height: 21px;
+      padding: 2px 10px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .practice-feedback.is-correct {
+      color: #17642d;
+      background: rgba(111, 207, 123, .22);
+      animation: feedback-pop 350ms ease-out;
+    }
+
+    .practice-feedback.is-wrong {
+      color: #a22c23;
+      background: rgba(255, 116, 91, .18);
+      animation: feedback-shake 330ms ease-out;
+    }
+
+    .practice-feedback.is-hint {
+      color: #705017;
+      background: rgba(255, 202, 79, .3);
+    }
+
+    .control-panel {
+      padding: 7px 9px;
+      border-radius: 15px;
+    }
+
+    .control-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .input-label {
+      color: #3f321e;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .number-input,
+    .difficulty-select {
+      height: 34px;
+      border: 2px solid #5f431c;
+      border-radius: 10px;
+      background: #fffdf7;
+      color: #2f2619;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .number-input {
+      width: 126px;
+      padding: 4px 9px;
+      text-align: center;
+    }
+
+    .difficulty-select {
+      min-width: 106px;
+      padding: 4px 7px;
+    }
+
+    .show-number-btn,
+    .reset-btn,
+    .practice-btn {
+      height: 34px;
+      min-width: 66px;
+      padding: 4px 10px;
+      font-size: 13px;
+    }
+
+    .input-error {
+      min-height: 17px;
+      margin-top: 3px;
+      color: #a93025;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.2;
+      text-align: center;
+    }
 
     .workspace {
       position: relative;
-      flex: 1;
       min-height: 0;
-      border: 3px dashed #cfcfcf;
-      border-radius: 18px;
-      background: #ffffff;
-      overflow: hidden;
+      overflow: visible;
       touch-action: none;
     }
 
@@ -237,245 +337,469 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      height: 92%;
+      height: min(98%, 440px);
       aspect-ratio: 979 / 1011;
       transform: translate(-50%, -50%);
-      z-index: 1;
-      pointer-events: none;
+      filter: drop-shadow(0 12px 16px rgba(98, 59, 10, .17));
     }
 
     .stand {
       position: absolute;
       inset: 0;
+      z-index: 1;
       width: 100%;
       height: 100%;
       object-fit: contain;
       pointer-events: none;
-      z-index: 1;
+    }
+
+    .rod-focus {
+      position: absolute;
+      top: 7%;
+      bottom: 16%;
+      z-index: 2;
+      width: 19%;
+      transform: translateX(-50%) scale(.96);
+      border-radius: 999px;
+      background: linear-gradient(180deg, transparent, rgba(255, 202, 79, .4), transparent);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 130ms ease, transform 160ms ease, background 160ms ease;
+    }
+
+    .rod-focus.is-active {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+
+    .rod-focus.is-hint {
+      opacity: 1;
+      background: linear-gradient(180deg, transparent, rgba(66, 190, 244, .44), transparent);
+    }
+
+    .rod-focus.is-error {
+      opacity: 1;
+      background: linear-gradient(180deg, transparent, rgba(239, 88, 65, .34), transparent);
     }
 
     .rod-label {
       position: absolute;
       bottom: 4.3%;
+      z-index: 10;
       transform: translateX(-50%);
-      z-index: 8;
-      font-size: clamp(14px, 2.2vw, 22px);
-      font-weight: 900;
-      color: #222;
-      background: rgba(255, 255, 255, .72);
+      padding: 2px 6px;
       border-radius: 8px;
-      padding: 2px 7px;
-      line-height: 1.1;
-      pointer-events: none;
+      background: rgba(255, 255, 255, .8);
+      color: #3f321e;
+      font-size: clamp(12px, 1.8vw, 17px);
+      font-weight: 900;
+      line-height: 1.05;
       white-space: nowrap;
+      pointer-events: none;
+      transition: transform 140ms ease, background 140ms ease, color 140ms ease;
     }
 
-    .rod-label.hidden {
-      display: none;
+    .rod-label.is-active,
+    .rod-label.is-hint,
+    .rod-label.is-error {
+      transform: translateX(-50%) translateY(-2px) scale(1.08);
+    }
+
+    .rod-label.is-active {
+      background: #ffda7d;
+    }
+
+    .rod-label.is-hint {
+      background: #80d8ff;
+    }
+
+    .rod-label.is-error {
+      background: #ff9b83;
+      color: #712015;
     }
 
     .placed-bead {
       position: absolute;
+      z-index: 5;
       width: 12.2%;
       aspect-ratio: 1 / 1;
       object-fit: contain;
       transform: translate(-50%, -50%);
-      z-index: 5;
       pointer-events: none;
+      will-change: transform, opacity;
+    }
+
+    .placed-bead.is-entering {
+      animation: bead-land 260ms cubic-bezier(.2, .9, .28, 1.22);
+    }
+
+    .placed-bead.is-bumping {
+      animation: bead-bump 180ms ease-out;
+    }
+
+    .placed-bead.is-removable {
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .placed-bead.is-removing {
+      pointer-events: none;
+      animation: bead-return 180ms ease-in forwards;
+    }
+
+    .placed-bead.is-error-shake {
+      animation: bead-error-shake 320ms ease-out;
+    }
+
+    .placed-bead.is-hint-remove {
+      filter: drop-shadow(0 0 7px rgba(230, 79, 56, .95));
+      animation: hint-pulse 650ms ease-in-out infinite alternate;
+    }
+
+    .hint-bead {
+      z-index: 6;
+      opacity: .46;
+      filter: drop-shadow(0 0 8px rgba(25, 139, 214, .9));
+      animation: hint-pulse 650ms ease-in-out infinite alternate;
     }
 
     .tray {
-      flex: 0 0 104px;
+      min-height: 76px;
+      padding: 6px 10px;
       display: flex;
-      justify-content: center;
       align-items: center;
-      gap: 12px;
-      padding: 8px;
-      background: #ffffff;
+      justify-content: center;
+      gap: 10px;
       border-radius: 18px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.08);
     }
 
     .source-card {
-      width: 108px;
-      height: 86px;
+      width: 112px;
+      height: 64px;
+      padding: 4px 8px;
       display: grid;
-      place-items: center;
-      gap: 2px;
-      border: 2px solid #ececec;
-      border-radius: 14px;
-      background: #ffffff;
-      font-size: 17px;
-      font-weight: 800;
-      color: #222;
-      cursor: grab;
+      grid-template-columns: 46px 1fr;
+      grid-template-rows: 1fr 1fr;
+      align-items: center;
+      column-gap: 5px;
+      border-color: rgba(95, 67, 28, .36);
+      background: rgba(255, 255, 255, .88);
       touch-action: none;
+      cursor: grab;
     }
 
-    .source-card:active {
+    .source-card:active:not(:disabled) {
       cursor: grabbing;
-      transform: scale(.98);
+    }
+
+    .source-card.is-active {
+      background: #fff1b8;
+      box-shadow: 0 0 0 4px rgba(255, 202, 79, .28), 0 3px 0 rgba(95, 67, 28, .18);
+    }
+
+    .source-card.is-full {
+      opacity: .62;
+    }
+
+    .source-card.is-full-shake {
+      animation: feedback-shake 330ms ease-out;
     }
 
     .source-img {
-      width: 54px;
-      height: 54px;
+      grid-row: 1 / 3;
+      width: 44px;
+      height: 44px;
       object-fit: contain;
       pointer-events: none;
     }
 
-    .reset-btn {
-      position: absolute;
-      right: 12px;
-      bottom: 12px;
-      z-index: 50;
-      font-size: 14px;
-      font-weight: 800;
-      padding: 8px 14px;
-      border-radius: 12px;
-      border: 2px solid #333;
-      background: #fff;
-      color: #111;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    .source-value {
+      align-self: end;
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1;
+      pointer-events: none;
     }
 
-    .reset-btn:active { transform: scale(.98); }
+    .source-action {
+      align-self: start;
+      margin-top: 3px;
+      color: #785a2e;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+      pointer-events: none;
+    }
 
     .ghost {
       position: fixed;
-      width: 64px;
-      height: 64px;
-      object-fit: contain;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
       z-index: 999;
-      opacity: .95;
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      opacity: .92;
+      transform: translate(-50%, -50%) scale(1.05);
+      filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .2));
+      pointer-events: none;
+    }
+
+    .celebration-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .celebration-star {
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      color: #ffc21c;
+      font-size: 22px;
+      text-shadow: 0 2px 0 #fff, 0 3px 7px rgba(117, 70, 0, .24);
+      animation: star-burst 780ms ease-out forwards;
+    }
+
+    .forest-footer {
+      position: fixed;
+      z-index: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: clamp(115px, 21vw, 245px);
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .forest-footer img {
+      position: absolute;
+      left: 50%;
+      bottom: -1px;
+      width: max(100%, 900px);
+      height: 100%;
+      object-fit: fill;
+      transform: translateX(-50%);
+      filter: saturate(1.25) brightness(1.28);
+      opacity: .98;
+    }
+
+    @keyframes bead-land {
+      0% { transform: translate(-50%, -175%) scale(.7); opacity: .2; }
+      64% { transform: translate(-50%, -43%) scale(1.08, .92); opacity: 1; }
+      82% { transform: translate(-50%, -55%) scale(.97, 1.04); }
+      100% { transform: translate(-50%, -50%) scale(1); }
+    }
+
+    @keyframes bead-bump {
+      0%, 100% { transform: translate(-50%, -50%); }
+      48% { transform: translate(-50%, -57%) scale(1.02); }
+    }
+
+    @keyframes bead-return {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -165%) scale(.68); opacity: 0; }
+    }
+
+    @keyframes bead-error-shake {
+      0%, 100% { transform: translate(-50%, -50%); }
+      25% { transform: translate(calc(-50% - 5px), -50%); }
+      55% { transform: translate(calc(-50% + 5px), -50%); }
+      78% { transform: translate(calc(-50% - 2px), -50%); }
+    }
+
+    @keyframes hint-pulse {
+      from { transform: translate(-50%, -50%) scale(.94); opacity: .45; }
+      to { transform: translate(-50%, -50%) scale(1.08); opacity: .78; }
+    }
+
+    @keyframes feedback-pop {
+      0% { transform: scale(.86); opacity: .4; }
+      70% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes feedback-shake {
+      0%, 100% { transform: translateX(0); }
+      30% { transform: translateX(-6px); }
+      60% { transform: translateX(6px); }
+    }
+
+    @keyframes star-burst {
+      0% { transform: translate(-50%, -50%) scale(.4); opacity: 0; }
+      18% { opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--star-x)), calc(-50% + var(--star-y))) rotate(var(--star-r)) scale(1.05); opacity: 0; }
     }
 
     @media (max-width: 700px) {
       .tool {
         width: 100vw;
-        padding: 8px;
-      }
-
-      .top-panel {
-        min-height: 124px;
-        flex-direction: column;
-        justify-content: center;
+        padding: 7px 8px clamp(82px, 11vh, 96px);
         gap: 6px;
       }
 
-      .display {
-        padding: 0 4px;
-      }
-
-      .number-line {
-        font-size: clamp(38px, 12vw, 58px);
-      }
-
-      .word-line {
-        font-size: clamp(17px, 5vw, 23px);
-        min-height: 24px;
-        line-height: 1.2;
-      }
-
-      .lang-switch {
-        position: static;
-        right: auto;
-        top: auto;
-        order: -1;
-        margin: 0 auto;
+      .top-panel {
+        min-height: 166px;
+        padding: 7px 8px;
         gap: 4px;
-        padding: 4px;
+        border-radius: 18px;
+      }
+
+      .top-toolbar {
+        gap: 5px;
+      }
+
+      .lang-switch,
+      .mode-switch {
+        padding: 3px;
       }
 
       .lang-select {
-        min-width: 112px;
-        height: 30px;
+        min-width: 116px;
+        height: 31px;
         font-size: 13px;
-        background-position:
-          calc(100% - 16px) 13px,
-          calc(100% - 10px) 13px;
+        background-position: calc(100% - 15px) 13px, calc(100% - 9px) 13px, 0 0;
       }
 
-      .answer-btn {
-        min-width: 58px;
-        height: 30px;
-        font-size: 13px;
-        padding: 5px 7px;
+      .sound-toggle,
+      .mode-btn {
+        height: 31px;
+        min-width: 67px;
+        padding: 4px 7px;
+        font-size: 12px;
       }
 
-      .speak-btn {
-        min-width: 36px;
-        height: 30px;
-        font-size: 13px;
-        padding: 5px 7px;
+      .instruction-line {
+        font-size: 12px;
       }
 
-      .number-input-panel {
-        width: 100%;
-        padding: 7px;
+      .display {
+        min-height: 52px;
+      }
+
+      .number-line {
+        font-size: clamp(35px, 11vw, 50px);
+      }
+
+      .word-line {
+        min-height: 19px;
+        font-size: clamp(15px, 4.8vw, 20px);
+      }
+
+      .control-panel {
+        padding: 6px;
+      }
+
+      .control-row {
         gap: 6px;
       }
 
       .number-input {
-        width: 115px;
-        height: 34px;
-        font-size: 15px;
+        width: 108px;
       }
 
-      .show-number-btn {
-        height: 34px;
-        font-size: 13px;
+      .difficulty-select {
+        min-width: 101px;
       }
 
-      .workspace {
-        min-height: 0;
+      .show-number-btn,
+      .reset-btn,
+      .practice-btn,
+      .number-input,
+      .difficulty-select {
+        height: 32px;
+        font-size: 12px;
       }
 
       .stand-stage {
-        height: 91%;
-      }
-
-      .tray {
-        flex: 0 0 96px;
-        justify-content: flex-start;
-        overflow-x: auto;
-        gap: 8px;
-      }
-
-      .source-card {
-        min-width: 86px;
-        height: 78px;
-        font-size: 15px;
-      }
-
-      .source-img {
-        width: 48px;
-        height: 48px;
+        height: min(98%, 390px);
       }
 
       .placed-bead {
-        width: 13.4%;
+        width: 13.2%;
       }
 
       .rod-label {
         bottom: 4.1%;
-        font-size: clamp(14px, 4vw, 19px);
-        padding: 2px 6px;
+        padding: 1px 4px;
+        font-size: clamp(10px, 3vw, 13px);
       }
 
-      .ghost {
-        width: 58px;
-        height: 58px;
+      .tray {
+        min-height: 68px;
+        padding: 5px 6px;
+        gap: 6px;
       }
 
-      .reset-btn {
-        right: 10px;
-        bottom: 10px;
-        font-size: 13px;
-        padding: 7px 12px;
+      .source-card {
+        width: min(30vw, 108px);
+        height: 57px;
+        grid-template-columns: 39px 1fr;
+        padding: 3px 5px;
+      }
+
+      .source-img {
+        width: 38px;
+        height: 38px;
+      }
+
+      .source-value {
+        font-size: 14px;
+      }
+
+      .source-action {
+        font-size: 9px;
+      }
+
+      .forest-footer {
+        height: 125px;
+      }
+
+      .forest-footer img {
+        width: 900px;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .top-panel {
+        min-height: 174px;
+      }
+
+      .top-toolbar {
+        max-width: 350px;
+      }
+
+      .practice-feedback {
+        font-size: 12px;
+      }
+    }
+
+    @media (max-height: 640px) {
+      html,
+      body {
+        height: auto;
+        min-height: 100%;
+        overflow-y: auto;
+        overscroll-behavior: auto;
+      }
+
+      .tool {
+        height: auto;
+        min-height: 640px;
+        grid-template-rows: auto auto 300px auto;
+        padding-bottom: 90px;
+        overflow: visible;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
       }
     }
   </style>
@@ -484,326 +808,242 @@
 <body>
   <main class="tool">
     <section class="top-panel">
-      <div class="lang-switch" aria-label="Language switch">
-        <select class="lang-select" id="languageSelect" aria-label="Language">
-          <option value="en">English</option>
-          <option value="zh">Chinese</option>
-          <option value="bm">Malay</option>
-        </select>
+      <div class="top-toolbar">
+        <div class="lang-switch" aria-label="Language and sound">
+          <select class="lang-select" id="languageSelect" aria-label="Language">
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+            <option value="bm">Bahasa Melayu</option>
+          </select>
+          <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">🔊 Sound: On</button>
+        </div>
+
+        <div class="mode-switch" role="group" aria-label="Learning mode">
+          <button class="mode-btn" id="freeModeBtn" type="button" aria-pressed="true">Free</button>
+          <button class="mode-btn" id="practiceModeBtn" type="button" aria-pressed="false">Practice</button>
+        </div>
       </div>
+
+      <div class="instruction-line" id="instructionLine">Add or remove beads to explore place value.</div>
 
       <div class="display">
         <div class="number-line hidden" id="numberDisplay">0</div>
         <div class="word-line hidden" id="wordDisplay"></div>
       </div>
 
-      <div class="answer-controls" aria-label="Answer controls">
-        <button class="answer-btn" id="answerBtn" type="button" aria-label="Answer">Answer</button>
-        <button class="speak-btn" id="speakBtn" type="button" aria-label="Speak">🔊</button>
+      <div class="answer-controls" id="answerControls" aria-label="Answer controls">
+        <button class="answer-btn" id="answerBtn" type="button">Answer</button>
+        <button class="speak-btn" id="speakBtn" type="button" aria-label="Speak" disabled>🔊</button>
       </div>
+
+      <div class="practice-feedback hidden" id="practiceFeedback" role="status" aria-live="polite"></div>
     </section>
 
-    <section class="number-input-panel" aria-label="Number input">
-      <span class="input-label" id="keyNumberLabel">Number</span>
-      <input class="number-input" id="keyNumberInput" type="number" inputmode="numeric" min="0" max="999" placeholder="0" />
-      <button class="show-number-btn" id="showNumberBtn" type="button">Show</button>
+    <section class="control-panel" aria-label="Number controls">
+      <div class="control-row" id="freeControls">
+        <label class="input-label" id="keyNumberLabel" for="keyNumberInput">Number</label>
+        <input class="number-input" id="keyNumberInput" type="number" inputmode="numeric" min="0" max="999" step="1" placeholder="0" />
+        <button class="show-number-btn" id="showNumberBtn" type="button">Show</button>
+        <button class="reset-btn" id="resetBtn" type="button">Reset</button>
+      </div>
+
+      <div class="control-row hidden" id="practiceControls">
+        <label class="input-label" id="difficultyLabel" for="difficultySelect">Level</label>
+        <select class="difficulty-select" id="difficultySelect">
+          <option value="1">1 digit</option>
+          <option value="2">2 digits</option>
+          <option value="3">3 digits</option>
+          <option value="custom">Custom question</option>
+        </select>
+        <input class="number-input hidden" id="customQuestionInput" type="number" inputmode="numeric" min="0" max="999" step="1" placeholder="0–999" aria-label="Custom question" />
+        <button class="practice-btn" id="newQuestionBtn" type="button">New</button>
+        <button class="practice-btn" id="checkAnswerBtn" type="button">Check</button>
+        <button class="practice-btn" id="hintBtn" type="button">Hint</button>
+      </div>
+
       <div class="input-error hidden" id="inputError" role="alert"></div>
     </section>
 
-    <section class="workspace" id="workspace">
+    <section class="workspace" id="workspace" aria-label="Counting frame">
       <div class="stand-stage" id="standStage">
-        <img class="stand" src="assets/frame.png" alt="Counting frame" />
-        <div class="rod-label hidden" data-label-rod="0"></div>
-        <div class="rod-label hidden" data-label-rod="1"></div>
-        <div class="rod-label hidden" data-label-rod="2"></div>
+        <div class="rod-focus" data-focus-rod="0"></div>
+        <div class="rod-focus" data-focus-rod="1"></div>
+        <div class="rod-focus" data-focus-rod="2"></div>
+        <img class="stand" src="assets/frame.png" alt="Three-rod counting frame" />
+        <div class="rod-label" data-label-rod="0"></div>
+        <div class="rod-label" data-label-rod="1"></div>
+        <div class="rod-label" data-label-rod="2"></div>
       </div>
-      <button class="reset-btn" id="resetBtn" type="button">Reset</button>
     </section>
 
-    <section class="tray">
-      <div class="source-card" data-rod="0">
+    <section class="tray" id="beadTray" aria-label="Bead tray">
+      <button class="source-card" type="button" data-rod="0">
         <img class="source-img" src="assets/bead_purple.png" alt="100 bead" />
-        <span>100</span>
-      </div>
-      <div class="source-card" data-rod="1">
+        <span class="source-value">100</span>
+        <span class="source-action">Add bead</span>
+      </button>
+      <button class="source-card" type="button" data-rod="1">
         <img class="source-img" src="assets/bead_orange.png" alt="10 bead" />
-        <span>10</span>
-      </div>
-      <div class="source-card" data-rod="2">
+        <span class="source-value">10</span>
+        <span class="source-action">Add bead</span>
+      </button>
+      <button class="source-card" type="button" data-rod="2">
         <img class="source-img" src="assets/bead_green.png" alt="1 bead" />
-        <span>1</span>
-      </div>
+        <span class="source-value">1</span>
+        <span class="source-action">Add bead</span>
+      </button>
     </section>
   </main>
+
+  <div class="forest-footer" aria-hidden="true">
+    <img src="assets/forest-footer.png" alt="" />
+  </div>
 
   <script>
     const workspace = document.getElementById("workspace");
     const standStage = document.getElementById("standStage");
     const numberDisplay = document.getElementById("numberDisplay");
     const wordDisplay = document.getElementById("wordDisplay");
-    const resetBtn = document.getElementById("resetBtn");
-    const speakBtn = document.getElementById("speakBtn");
+    const answerControls = document.getElementById("answerControls");
     const answerBtn = document.getElementById("answerBtn");
-    const sources = document.querySelectorAll(".source-card");
-    const rodLabels = document.querySelectorAll(".rod-label");
+    const speakBtn = document.getElementById("speakBtn");
     const languageSelect = document.getElementById("languageSelect");
+    const soundToggle = document.getElementById("soundToggle");
+    const freeModeBtn = document.getElementById("freeModeBtn");
+    const practiceModeBtn = document.getElementById("practiceModeBtn");
+    const instructionLine = document.getElementById("instructionLine");
+    const practiceFeedback = document.getElementById("practiceFeedback");
+    const freeControls = document.getElementById("freeControls");
+    const practiceControls = document.getElementById("practiceControls");
     const keyNumberLabel = document.getElementById("keyNumberLabel");
     const keyNumberInput = document.getElementById("keyNumberInput");
     const showNumberBtn = document.getElementById("showNumberBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const difficultyLabel = document.getElementById("difficultyLabel");
+    const difficultySelect = document.getElementById("difficultySelect");
+    const customQuestionInput = document.getElementById("customQuestionInput");
+    const newQuestionBtn = document.getElementById("newQuestionBtn");
+    const checkAnswerBtn = document.getElementById("checkAnswerBtn");
+    const hintBtn = document.getElementById("hintBtn");
     const inputError = document.getElementById("inputError");
+    const sources = [...document.querySelectorAll(".source-card")];
+    const sourceActions = [...document.querySelectorAll(".source-action")];
+    const rodLabels = [...document.querySelectorAll(".rod-label")];
+    const rodFocuses = [...document.querySelectorAll(".rod-focus")];
 
-    /*
-      Rod order:
-      0 = hundreds = purple
-      1 = tens     = orange / yellow
-      2 = ones     = green
-
-      Density tuning:
-      - gapPc controls PC view density.
-      - gapMobile controls mobile view density.
-      - smaller gap = beads are closer / denser.
-      - bigger gap = beads are more open.
-    */
     const rods = [
-      {
-        value: 100,
-        count: 0,
-        x: 25.0,
-        img: "assets/bead_purple.png",
-        bottomY: 71.5,
-        gapPc: 6.2,
-        gapMobile: 6.2
-      },
-      {
-        value: 10,
-        count: 0,
-        x: 50.1,
-        img: "assets/bead_orange.png",
-        bottomY: 71.5,
-        gapPc: 5.7,
-        gapMobile: 5.7
-      },
-      {
-        value: 1,
-        count: 0,
-        x: 75.0,
-        img: "assets/bead_green.png",
-        bottomY: 71.5,
-        gapPc: 5.2,
-        gapMobile: 5.7
-      }
+      { value: 100, count: 0, x: 25.0, img: "assets/bead_purple.png", bottomY: 71.5, gapPc: 6.2, gapMobile: 6.2 },
+      { value: 10, count: 0, x: 50.1, img: "assets/bead_orange.png", bottomY: 71.5, gapPc: 5.7, gapMobile: 5.7 },
+      { value: 1, count: 0, x: 75.0, img: "assets/bead_green.png", bottomY: 71.5, gapPc: 5.2, gapMobile: 5.7 }
     ];
 
     const languageData = {
-      en: {
-        labels: ["hundred", "ten", "one"],
-        showLabels: true,
-        words: numberToEnglish,
-        speechLang: "en-US"
-      },
-      zh: {
-        labels: ["百", "十", "个"],
-        showLabels: true,
-        words: numberToChinese,
-        speechLang: "zh-CN"
-      },
-      bm: {
-        labels: ["ratus", "puluh", "sa"],
-        showLabels: true,
-        words: numberToMalay,
-        speechLang: "ms-MY"
-      }
+      en: { labels: ["hundred", "ten", "one"], words: numberToEnglish, speechLang: "en-US" },
+      zh: { labels: ["百", "十", "个"], words: numberToChinese, speechLang: "zh-CN" },
+      bm: { labels: ["ratus", "puluh", "sa"], words: numberToMalay, speechLang: "ms-MY" }
     };
 
-    const buttonTextData = {
+    const uiText = {
       en: {
         answer: "Answer",
         reset: "Reset",
         number: "Number",
         show: "Show",
-        error: "Please enter a number from 0 to 999."
+        soundOn: "Sound: On",
+        soundOff: "Sound: Off",
+        freeMode: "Free",
+        practiceMode: "Practice",
+        instructionFree: "Add or remove beads to explore place value.",
+        instructionPractice: "Build this number with the beads.",
+        instructionCustom: "Enter a number to create your own question.",
+        difficulty: "Level",
+        levels: ["1 digit", "2 digits", "3 digits", "Custom question"],
+        newQuestion: "New",
+        setQuestion: "Set question",
+        customQuestion: "Custom question",
+        check: "Check",
+        hint: "Hint",
+        addBead: "Tap or drag",
+        correct: "Correct! Great work!",
+        wrong: "Not yet — check the highlighted place values.",
+        hintAdd: (count, label) => `Hint: add ${count} ${count === 1 ? "bead" : "beads"} to the ${label} rod.`,
+        hintRemove: (count, label) => `Hint: remove ${count} ${count === 1 ? "bead" : "beads"} from the ${label} rod.`,
+        error: "Please enter a whole number from 0 to 999.",
+        rodFull: "This rod already has 9 beads."
       },
       zh: {
         answer: "答案",
         reset: "重置",
         number: "数字",
         show: "显示",
-        error: "请输入 0 到 999 的数字。"
+        soundOn: "音效：开",
+        soundOff: "音效：关",
+        freeMode: "自由",
+        practiceMode: "练习",
+        instructionFree: "添加或取下珠子，探索百、十、个位值。",
+        instructionPractice: "请用珠子表示这个数字。",
+        instructionCustom: "输入数字，自由设置练习题。",
+        difficulty: "难度",
+        levels: ["1 位数", "2 位数", "3 位数", "自由出题"],
+        newQuestion: "新题",
+        setQuestion: "设为题目",
+        customQuestion: "自由出题",
+        check: "检查",
+        hint: "提示",
+        addBead: "点击或拖动",
+        correct: "答对了！做得很好！",
+        wrong: "还没正确，请检查高亮的位值。",
+        hintAdd: (count, label) => `提示：${label}位还要增加 ${count} 颗珠子。`,
+        hintRemove: (count, label) => `提示：${label}位需要取下 ${count} 颗珠子。`,
+        error: "请输入 0 到 999 的整数。",
+        rodFull: "这一杆已经有 9 颗珠子了。"
       },
       bm: {
         answer: "Jawapan",
         reset: "Mula Semula",
         number: "Nombor",
         show: "Papar",
-        error: "Sila masukkan nombor dari 0 hingga 999."
+        soundOn: "Bunyi: Hidup",
+        soundOff: "Bunyi: Mati",
+        freeMode: "Bebas",
+        practiceMode: "Latihan",
+        instructionFree: "Tambah atau keluarkan manik untuk meneroka nilai tempat.",
+        instructionPractice: "Bina nombor ini menggunakan manik.",
+        instructionCustom: "Masukkan nombor untuk mencipta soalan sendiri.",
+        difficulty: "Tahap",
+        levels: ["1 digit", "2 digit", "3 digit", "Soalan sendiri"],
+        newQuestion: "Baharu",
+        setQuestion: "Tetapkan",
+        customQuestion: "Soalan sendiri",
+        check: "Semak",
+        hint: "Petunjuk",
+        addBead: "Tekan atau seret",
+        correct: "Betul! Syabas!",
+        wrong: "Belum tepat — semak nilai tempat yang diserlahkan.",
+        hintAdd: (count, label) => `Petunjuk: tambah ${count} manik pada lajur ${label}.`,
+        hintRemove: (count, label) => `Petunjuk: keluarkan ${count} manik daripada lajur ${label}.`,
+        error: "Sila masukkan nombor bulat dari 0 hingga 999.",
+        rodFull: "Lajur ini sudah mempunyai 9 manik."
       }
     };
 
     let currentLang = "en";
-    let currentDrag = null;
+    let currentMode = "free";
     let answerVisible = false;
-    let currentAudio = null;
-    let bmAudioToken = 0;
-
-    rodLabels.forEach(label => {
-      const index = Number(label.dataset.labelRod);
-      label.style.left = rods[index].x + "%";
-    });
-
-    answerBtn.textContent = buttonTextData[currentLang].answer;
-    answerBtn.setAttribute("aria-label", buttonTextData[currentLang].answer);
-    resetBtn.textContent = buttonTextData[currentLang].reset;
-
-    languageSelect.addEventListener("change", () => {
-      setLanguage(languageSelect.value);
-    });
-
-    sources.forEach(source => source.addEventListener("pointerdown", startDragFromTray));
-    resetBtn.addEventListener("click", reset);
-    resetBtn.addEventListener("pointerdown", e => e.stopPropagation());
-    answerBtn.addEventListener("click", showAnswer);
-    answerBtn.addEventListener("pointerdown", e => e.stopPropagation());
-
-    function setLanguage(lang) {
-      stopAllAudio();
-      currentLang = lang;
-
-      languageSelect.value = lang;
-
-      const data = languageData[lang];
-      const buttonText = buttonTextData[lang];
-
-      rodLabels.forEach((label, index) => {
-        label.textContent = data.labels[index];
-        label.classList.toggle("hidden", !data.showLabels);
-      });
-
-      answerBtn.textContent = buttonText.answer;
-      answerBtn.setAttribute("aria-label", buttonText.answer);
-      resetBtn.textContent = buttonText.reset;
-      keyNumberLabel.textContent = buttonText.number;
-      showNumberBtn.textContent = buttonText.show;
-      updateInputErrorMessage();
-
-      hideAnswer();
-      updateNumber();
-    }
-
+    let controlsLocked = false;
+    let currentDrag = null;
+    let animationToken = 0;
+    let activeRodToken = 0;
+    let practiceVisualToken = 0;
+    let practiceDifficulty = "1";
+    let practiceTarget = null;
+    let practiceQuestionSolved = false;
     let currentInputError = false;
+    let inputErrorTimer = null;
 
-    function showInputError() {
-      currentInputError = true;
-      inputError.textContent = buttonTextData[currentLang].error;
-      inputError.classList.remove("hidden");
-    }
-
-    function clearInputError() {
-      currentInputError = false;
-      inputError.textContent = "";
-      inputError.classList.add("hidden");
-    }
-
-    function updateInputErrorMessage() {
-      if (currentInputError) inputError.textContent = buttonTextData[currentLang].error;
-    }
-
-    function getKeyInputNumber() {
-      const value = Number(keyNumberInput.value);
-      if (!Number.isFinite(value)) return null;
-      const number = Math.floor(value);
-      if (number < 0 || number > 999) return null;
-      return number;
-    }
-
-    function showNumberOnFrame() {
-      const number = getKeyInputNumber();
-      if (number === null) {
-        showInputError();
-        return;
-      }
-
-      clearInputError();
-      stopAllAudio();
-      setFrameNumber(number);
-      hideAnswer();
-      updateNumber();
-    }
-
-    function setFrameNumber(number) {
-      const counts = [
-        Math.floor(number / 100),
-        Math.floor((number % 100) / 10),
-        number % 10
-      ];
-
-      standStage.querySelectorAll(".placed-bead").forEach(bead => bead.remove());
-
-      rods.forEach((rod, rodIndex) => {
-        rod.count = 0;
-        for (let i = 0; i < counts[rodIndex]; i++) {
-          addBeadToRod(rodIndex);
-        }
-      });
-    }
-
-    showNumberBtn.addEventListener("click", showNumberOnFrame);
-    keyNumberInput.addEventListener("keydown", event => {
-      if (event.key === "Enter") showNumberOnFrame();
-    });
-
-    function startDragFromTray(e) {
-      e.preventDefault();
-
-      const source = e.currentTarget;
-      const rodIndex = Number(source.dataset.rod);
-      const img = source.querySelector("img");
-
-      const ghost = document.createElement("img");
-      ghost.src = img.src;
-      ghost.className = "ghost";
-      document.body.appendChild(ghost);
-
-      currentDrag = { rodIndex, ghost };
-      moveGhost(e.clientX, e.clientY);
-
-      source.setPointerCapture(e.pointerId);
-      source.addEventListener("pointermove", dragMove);
-      source.addEventListener("pointerup", dragEnd);
-      source.addEventListener("pointercancel", dragEnd);
-    }
-
-    function dragMove(e) {
-      if (!currentDrag) return;
-      moveGhost(e.clientX, e.clientY);
-    }
-
-    function dragEnd(e) {
-      if (!currentDrag) return;
-
-      const source = e.currentTarget;
-      source.removeEventListener("pointermove", dragMove);
-      source.removeEventListener("pointerup", dragEnd);
-      source.removeEventListener("pointercancel", dragEnd);
-
-      const rect = workspace.getBoundingClientRect();
-      const isInside =
-        e.clientX >= rect.left &&
-        e.clientX <= rect.right &&
-        e.clientY >= rect.top &&
-        e.clientY <= rect.bottom;
-
-      if (isInside) {
-        addBead(currentDrag.rodIndex);
-      }
-
-      currentDrag.ghost.remove();
-      currentDrag = null;
-    }
-
-    function moveGhost(x, y) {
-      currentDrag.ghost.style.left = x + "px";
-      currentDrag.ghost.style.top = y + "px";
-    }
+    const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const stepDelay = ms => prefersReducedMotion() ? 0 : ms;
+    const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
     function isMobileView() {
       return window.matchMedia("(max-width: 700px)").matches;
@@ -814,255 +1054,905 @@
       return rod.bottomY - (slot * gap);
     }
 
-    function addBead(rodIndex) {
-      const added = addBeadToRod(rodIndex);
-      if (!added) return;
+    function updateRodGeometry() {
+      rodLabels.forEach((label, index) => label.style.left = rods[index].x + "%");
+      rodFocuses.forEach((focus, index) => focus.style.left = rods[index].x + "%");
+      syncBeadPositions();
+    }
 
-      clearInputError();
-      hideAnswer();
+    function syncBeadPositions() {
+      standStage.querySelectorAll(".placed-bead[data-slot]").forEach(bead => {
+        const rodIndex = Number(bead.dataset.rod);
+        const slot = Number(bead.dataset.slot);
+        bead.style.left = rods[rodIndex].x + "%";
+        bead.style.top = getBeadY(rods[rodIndex], slot) + "%";
+      });
+    }
+
+    window.addEventListener("resize", updateRodGeometry);
+
+    languageSelect.addEventListener("change", () => setLanguage(languageSelect.value));
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      stopAllAudio();
+      languageSelect.value = lang;
+      const text = uiText[lang];
+
+      answerBtn.textContent = text.answer;
+      answerBtn.setAttribute("aria-label", text.answer);
+      resetBtn.textContent = text.reset;
+      keyNumberLabel.textContent = text.number;
+      showNumberBtn.textContent = text.show;
+      updateSoundToggle();
+      updateLearningInterfaceText();
+      updateInputErrorMessage();
+
+      rodLabels.forEach((label, index) => label.textContent = languageData[lang].labels[index]);
+      sources.forEach((source, index) => {
+        source.setAttribute("aria-label", `${text.addBead}: ${languageData[lang].labels[index]}`);
+      });
+      sourceActions.forEach(action => action.textContent = text.addBead);
+
+      clearPracticeFeedback();
+      clearPracticeVisuals();
+      if (currentMode === "free") hideAnswer();
       updateNumber();
     }
 
-    function addBeadToRod(rodIndex) {
+    function updateLearningInterfaceText() {
+      const text = uiText[currentLang];
+      freeModeBtn.textContent = text.freeMode;
+      practiceModeBtn.textContent = text.practiceMode;
+      instructionLine.textContent = currentMode === "practice"
+        ? (practiceDifficulty === "custom" && practiceTarget === null ? text.instructionCustom : text.instructionPractice)
+        : text.instructionFree;
+      difficultyLabel.textContent = text.difficulty;
+      newQuestionBtn.textContent = practiceDifficulty === "custom" ? text.setQuestion : text.newQuestion;
+      checkAnswerBtn.textContent = text.check;
+      hintBtn.textContent = text.hint;
+      customQuestionInput.setAttribute("aria-label", text.customQuestion);
+      [...difficultySelect.options].forEach((option, index) => option.textContent = text.levels[index]);
+    }
+
+    function showInputError(message = uiText[currentLang].error, temporary = false) {
+      clearTimeout(inputErrorTimer);
+      currentInputError = !temporary;
+      inputError.textContent = message;
+      inputError.classList.remove("hidden");
+      if (temporary) {
+        inputErrorTimer = setTimeout(() => clearInputError(), 1500);
+      }
+    }
+
+    function clearInputError() {
+      clearTimeout(inputErrorTimer);
+      currentInputError = false;
+      inputError.textContent = "";
+      inputError.classList.add("hidden");
+    }
+
+    function updateInputErrorMessage() {
+      if (currentInputError) inputError.textContent = uiText[currentLang].error;
+    }
+
+    function parseWholeNumber(rawValue) {
+      const value = String(rawValue).trim();
+      if (!/^\d{1,3}$/.test(value)) return null;
+      const number = Number(value);
+      return number >= 0 && number <= 999 ? number : null;
+    }
+
+    freeModeBtn.addEventListener("click", () => setMode("free"));
+    practiceModeBtn.addEventListener("click", () => setMode("practice"));
+
+    async function setMode(mode) {
+      if (controlsLocked || (mode !== "free" && mode !== "practice") || mode === currentMode) return;
+      currentMode = mode;
+      answerVisible = false;
+      clearInputError();
+      clearPracticeFeedback();
+      clearPracticeVisuals();
+
+      const isPractice = mode === "practice";
+      freeModeBtn.setAttribute("aria-pressed", String(!isPractice));
+      practiceModeBtn.setAttribute("aria-pressed", String(isPractice));
+      freeControls.classList.toggle("hidden", isPractice);
+      practiceControls.classList.toggle("hidden", !isPractice);
+      answerControls.classList.toggle("hidden", isPractice);
+      updateCustomQuestionControls();
+      updateLearningInterfaceText();
+
+      if (isPractice) await startNewPracticeProblem();
+      else {
+        practiceTarget = null;
+        hideAnswer();
+        updateNumber();
+      }
+    }
+
+    difficultySelect.addEventListener("change", async () => {
+      if (controlsLocked) return;
+      practiceDifficulty = difficultySelect.value;
+      practiceTarget = null;
+      practiceQuestionSolved = false;
+      clearInputError();
+      clearPracticeFeedback();
+      clearPracticeVisuals();
+      updateCustomQuestionControls();
+      updateLearningInterfaceText();
+      updateNumber();
+
+      if (practiceDifficulty === "custom") customQuestionInput.focus();
+      else await startNewPracticeProblem();
+    });
+
+    function updateCustomQuestionControls() {
+      customQuestionInput.classList.toggle("hidden", practiceDifficulty !== "custom");
+    }
+
+    customQuestionInput.addEventListener("input", clearInputError);
+    customQuestionInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") startNewPracticeProblem();
+    });
+    newQuestionBtn.addEventListener("click", startNewPracticeProblem);
+    checkAnswerBtn.addEventListener("click", checkPracticeAnswer);
+    hintBtn.addEventListener("click", showPracticeHint);
+
+    async function startNewPracticeProblem() {
+      if (currentMode !== "practice" || controlsLocked) return;
+
+      if (practiceDifficulty === "custom") {
+        const customNumber = parseWholeNumber(customQuestionInput.value);
+        if (customNumber === null) {
+          practiceTarget = null;
+          updateLearningInterfaceText();
+          updateNumber();
+          showInputError();
+          customQuestionInput.focus();
+          return;
+        }
+        practiceTarget = customNumber;
+      } else {
+        const difficulty = Number(practiceDifficulty);
+        const previousTarget = practiceTarget;
+        const min = difficulty === 1 ? 0 : 10 ** (difficulty - 1);
+        const max = (10 ** difficulty) - 1;
+        do {
+          practiceTarget = Math.floor(Math.random() * (max - min + 1)) + min;
+        } while (practiceTarget === previousTarget && max > min);
+      }
+
+      practiceQuestionSolved = false;
+      clearInputError();
+      clearPracticeFeedback();
+      clearPracticeVisuals();
+      updateLearningInterfaceText();
+      updateNumber();
+      await animateFrameToCounts([0, 0, 0], [2, 1, 0]);
+      updateNumber();
+    }
+
+    function checkPracticeAnswer() {
+      if (currentMode !== "practice" || controlsLocked || practiceTarget === null) return;
+      clearPracticeVisuals();
+      const targetCounts = getDigits(practiceTarget);
+      const wrongRods = targetCounts
+        .map((count, index) => count === rods[index].count ? -1 : index)
+        .filter(index => index >= 0);
+
+      if (wrongRods.length === 0) {
+        const newlySolved = !practiceQuestionSolved;
+        practiceQuestionSolved = true;
+        showPracticeFeedback(uiText[currentLang].correct, "correct");
+        if (newlySolved) {
+          playPracticeFeedbackSound("correct");
+          celebratePracticeSuccess();
+        }
+        return;
+      }
+
+      playPracticeFeedbackSound("wrong");
+      showPracticeFeedback(uiText[currentLang].wrong, "wrong");
+      markPracticeRods(wrongRods, "error");
+    }
+
+    function showPracticeHint() {
+      if (currentMode !== "practice" || controlsLocked || practiceTarget === null) return;
+      clearPracticeVisuals();
+      const targetCounts = getDigits(practiceTarget);
+      const rodIndex = targetCounts.findIndex((count, index) => count !== rods[index].count);
+
+      if (rodIndex === -1) {
+        checkPracticeAnswer();
+        return;
+      }
+
+      const difference = targetCounts[rodIndex] - rods[rodIndex].count;
+      const label = languageData[currentLang].labels[rodIndex];
+      const message = difference > 0
+        ? uiText[currentLang].hintAdd(difference, label)
+        : uiText[currentLang].hintRemove(Math.abs(difference), label);
+      showPracticeFeedback(message, "hint");
+      markPracticeRods([rodIndex], "hint", 1800);
+      showHintMarker(rodIndex, difference > 0 ? "add" : "remove");
+    }
+
+    function showPracticeFeedback(message, kind) {
+      practiceFeedback.textContent = message;
+      practiceFeedback.className = `practice-feedback is-${kind}`;
+    }
+
+    function clearPracticeFeedback() {
+      practiceFeedback.textContent = "";
+      practiceFeedback.className = "practice-feedback hidden";
+    }
+
+    function markPracticeRods(indices, kind, duration = 0) {
+      const token = ++practiceVisualToken;
+      indices.forEach(index => {
+        rodLabels[index].classList.add(`is-${kind}`);
+        rodFocuses[index].classList.add(`is-${kind}`);
+        if (kind === "error") {
+          getRealBeads(index).forEach(bead => {
+            bead.classList.remove("is-error-shake");
+            void bead.offsetWidth;
+            bead.classList.add("is-error-shake");
+            bead.addEventListener("animationend", () => bead.classList.remove("is-error-shake"), { once: true });
+          });
+        }
+      });
+      if (duration > 0) {
+        setTimeout(() => {
+          if (token === practiceVisualToken) clearPracticeVisuals();
+        }, duration);
+      }
+    }
+
+    function showHintMarker(rodIndex, direction) {
+      if (direction === "add" && rods[rodIndex].count < 9) {
+        const hint = document.createElement("img");
+        hint.src = rods[rodIndex].img;
+        hint.alt = "";
+        hint.className = "placed-bead hint-bead";
+        hint.style.left = rods[rodIndex].x + "%";
+        hint.style.top = getBeadY(rods[rodIndex], rods[rodIndex].count) + "%";
+        standStage.appendChild(hint);
+      } else {
+        const beads = getRealBeads(rodIndex);
+        beads.at(-1)?.classList.add("is-hint-remove");
+      }
+    }
+
+    function clearPracticeVisuals() {
+      practiceVisualToken += 1;
+      rodLabels.forEach(label => label.classList.remove("is-hint", "is-error"));
+      rodFocuses.forEach(focus => focus.classList.remove("is-hint", "is-error"));
+      standStage.querySelectorAll(".hint-bead").forEach(bead => bead.remove());
+      standStage.querySelectorAll(".is-hint-remove, .is-error-shake").forEach(bead => {
+        bead.classList.remove("is-hint-remove", "is-error-shake");
+      });
+      standStage.querySelectorAll(".celebration-layer").forEach(layer => layer.remove());
+    }
+
+    function celebratePracticeSuccess() {
+      if (prefersReducedMotion()) return;
+      const layer = document.createElement("div");
+      layer.className = "celebration-layer";
+      const directions = [
+        [-105, -80, -24], [-64, -118, 18], [-15, -105, -15], [38, -120, 24],
+        [84, -88, -20], [108, -35, 28], [-112, 8, 16], [110, 13, -18]
+      ];
+      directions.forEach(([x, y, rotation], index) => {
+        const star = document.createElement("span");
+        star.className = "celebration-star";
+        star.textContent = index % 3 === 0 ? "★" : "✦";
+        star.style.setProperty("--star-x", `${x}px`);
+        star.style.setProperty("--star-y", `${y}px`);
+        star.style.setProperty("--star-r", `${rotation}deg`);
+        star.style.animationDelay = `${index * 22}ms`;
+        layer.appendChild(star);
+      });
+      standStage.appendChild(layer);
+      setTimeout(() => layer.remove(), 1100);
+    }
+
+    sources.forEach(source => {
+      source.addEventListener("pointerdown", startDragFromTray);
+      source.addEventListener("click", event => {
+        if (source.dataset.suppressClick === "true") {
+          event.preventDefault();
+          return;
+        }
+        addBead(Number(source.dataset.rod));
+      });
+    });
+
+    function startDragFromTray(event) {
+      if (controlsLocked || event.button > 0) return;
+      const source = event.currentTarget;
+      const rodIndex = Number(source.dataset.rod);
+      if (rods[rodIndex].count >= 9) {
+        signalRodFull(rodIndex);
+        return;
+      }
+
+      event.preventDefault();
+      const img = source.querySelector("img");
+      const ghost = document.createElement("img");
+      ghost.src = img.src;
+      ghost.alt = "";
+      ghost.className = "ghost";
+      document.body.appendChild(ghost);
+
+      currentDrag = {
+        rodIndex,
+        ghost,
+        source,
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        moved: false
+      };
+      moveGhost(event.clientX, event.clientY);
+      source.classList.add("is-active");
+      setActiveRod(rodIndex);
+      source.setPointerCapture(event.pointerId);
+      source.addEventListener("pointermove", dragMove);
+      source.addEventListener("pointerup", dragEnd);
+      source.addEventListener("pointercancel", dragEnd);
+    }
+
+    function dragMove(event) {
+      if (!currentDrag || event.pointerId !== currentDrag.pointerId) return;
+      if (Math.hypot(event.clientX - currentDrag.startX, event.clientY - currentDrag.startY) > 7) {
+        currentDrag.moved = true;
+      }
+      moveGhost(event.clientX, event.clientY);
+    }
+
+    function dragEnd(event) {
+      if (!currentDrag || event.pointerId !== currentDrag.pointerId) return;
+      const drag = currentDrag;
+      drag.source.removeEventListener("pointermove", dragMove);
+      drag.source.removeEventListener("pointerup", dragEnd);
+      drag.source.removeEventListener("pointercancel", dragEnd);
+
+      const rect = workspace.getBoundingClientRect();
+      const isInside = event.clientX >= rect.left && event.clientX <= rect.right &&
+        event.clientY >= rect.top && event.clientY <= rect.bottom;
+
+      drag.source.dataset.suppressClick = "true";
+      setTimeout(() => delete drag.source.dataset.suppressClick, 260);
+      if (event.type !== "pointercancel") {
+        if (drag.moved && isInside) addBead(drag.rodIndex);
+        if (!drag.moved) addBead(drag.rodIndex);
+      }
+
+      drag.ghost.remove();
+      drag.source.classList.remove("is-active");
+      currentDrag = null;
+      clearActiveRod(100);
+    }
+
+    function moveGhost(x, y) {
+      if (!currentDrag) return;
+      currentDrag.ghost.style.left = x + "px";
+      currentDrag.ghost.style.top = y + "px";
+    }
+
+    function addBead(rodIndex) {
+      if (controlsLocked) return false;
+      const added = addBeadToRod(rodIndex, { animate: true, sound: true });
+      if (!added) {
+        signalRodFull(rodIndex);
+        return false;
+      }
+      clearInputError();
+      if (currentMode === "free") hideAnswer();
+      else {
+        practiceQuestionSolved = false;
+        clearPracticeFeedback();
+        clearPracticeVisuals();
+      }
+      highlightRod(rodIndex, 340);
+      updateNumber();
+      return true;
+    }
+
+    function addBeadToRod(rodIndex, options = {}) {
+      const { animate = true, sound = false } = options;
       const rod = rods[rodIndex];
       if (rod.count >= 9) return false;
 
+      const existing = getRealBeads(rodIndex);
       const bead = document.createElement("img");
-      bead.src = rod.img;
-      bead.className = "placed-bead";
-      bead.dataset.rod = rodIndex;
-
       const slot = rod.count;
+      bead.src = rod.img;
+      bead.alt = "";
+      bead.className = `placed-bead${animate && !prefersReducedMotion() ? " is-entering" : ""}`;
+      bead.dataset.rod = rodIndex;
+      bead.dataset.slot = slot;
       bead.style.left = rod.x + "%";
       bead.style.top = getBeadY(rod, slot) + "%";
-
+      bead.addEventListener("click", () => removeTopBead(rodIndex));
       standStage.appendChild(bead);
-      rod.count++;
+      rod.count += 1;
+
+      if (animate && !prefersReducedMotion()) {
+        existing.forEach(existingBead => {
+          existingBead.classList.remove("is-bumping");
+          void existingBead.offsetWidth;
+          existingBead.classList.add("is-bumping");
+          existingBead.addEventListener("animationend", () => existingBead.classList.remove("is-bumping"), { once: true });
+        });
+        bead.addEventListener("animationend", () => bead.classList.remove("is-entering"), { once: true });
+      }
+
+      updateTopBeadInteractivity(rodIndex);
+      updateSourceState(rodIndex);
+      if (sound) playBeadSound("add");
       return true;
+    }
+
+    async function removeTopBead(rodIndex) {
+      if (controlsLocked || rods[rodIndex].count === 0) return false;
+      const removed = await removeBeadFromRod(rodIndex, { animate: true, sound: true });
+      if (!removed) return false;
+      clearInputError();
+      if (currentMode === "free") hideAnswer();
+      else {
+        practiceQuestionSolved = false;
+        clearPracticeFeedback();
+        clearPracticeVisuals();
+      }
+      highlightRod(rodIndex, 340);
+      updateNumber();
+      return true;
+    }
+
+    async function removeBeadFromRod(rodIndex, options = {}) {
+      const { animate = true, sound = false } = options;
+      const rod = rods[rodIndex];
+      const beads = getRealBeads(rodIndex);
+      const bead = beads.at(-1);
+      if (!bead || rod.count <= 0) return false;
+
+      rod.count -= 1;
+      bead.classList.remove("is-removable", "is-entering", "is-bumping");
+      if (animate && !prefersReducedMotion()) bead.classList.add("is-removing");
+      updateTopBeadInteractivity(rodIndex);
+      updateSourceState(rodIndex);
+      if (sound) playBeadSound("remove");
+
+      if (animate && !prefersReducedMotion()) {
+        setTimeout(() => bead.remove(), 180);
+      } else {
+        bead.remove();
+      }
+      return true;
+    }
+
+    function getRealBeads(rodIndex) {
+      return [...standStage.querySelectorAll(`.placed-bead[data-rod="${rodIndex}"][data-slot]:not(.is-removing)`)]
+        .sort((a, b) => Number(a.dataset.slot) - Number(b.dataset.slot));
+    }
+
+    function updateTopBeadInteractivity(rodIndex) {
+      const beads = getRealBeads(rodIndex);
+      beads.forEach(bead => bead.classList.remove("is-removable"));
+      const top = beads.at(-1);
+      if (top) {
+        top.classList.add("is-removable");
+        top.alt = `Remove one ${languageData[currentLang].labels[rodIndex]} bead`;
+      }
+    }
+
+    function updateSourceState(rodIndex) {
+      const source = sources[rodIndex];
+      const full = rods[rodIndex].count >= 9;
+      source.classList.toggle("is-full", full);
+      source.setAttribute("aria-disabled", String(full));
+    }
+
+    function signalRodFull(rodIndex) {
+      const source = sources[rodIndex];
+      source.classList.remove("is-full-shake");
+      void source.offsetWidth;
+      source.classList.add("is-full-shake");
+      source.addEventListener("animationend", () => source.classList.remove("is-full-shake"), { once: true });
+      markPracticeRods([rodIndex], "error", 650);
+      showInputError(uiText[currentLang].rodFull, true);
+      playPracticeFeedbackSound("wrong");
+    }
+
+    function setActiveRod(rodIndex) {
+      activeRodToken += 1;
+      rodLabels.forEach((label, index) => label.classList.toggle("is-active", index === rodIndex));
+      rodFocuses.forEach((focus, index) => focus.classList.toggle("is-active", index === rodIndex));
+    }
+
+    function clearActiveRod(delay = 0) {
+      const token = ++activeRodToken;
+      setTimeout(() => {
+        if (token !== activeRodToken) return;
+        rodLabels.forEach(label => label.classList.remove("is-active"));
+        rodFocuses.forEach(focus => focus.classList.remove("is-active"));
+      }, delay);
+    }
+
+    function highlightRod(rodIndex, duration = 300) {
+      setActiveRod(rodIndex);
+      clearActiveRod(duration);
     }
 
     function getTotal() {
       return rods.reduce((sum, rod) => sum + rod.count * rod.value, 0);
     }
 
+    function getDigits(number) {
+      return [Math.floor(number / 100), Math.floor((number % 100) / 10), number % 10];
+    }
+
     function updateNumber() {
+      if (currentMode === "practice") {
+        answerControls.classList.add("hidden");
+        speakBtn.disabled = true;
+        if (practiceTarget === null) {
+          numberDisplay.classList.add("hidden");
+          wordDisplay.classList.add("hidden");
+        } else {
+          numberDisplay.textContent = practiceTarget.toString();
+          wordDisplay.textContent = languageData[currentLang].words(practiceTarget);
+          numberDisplay.classList.remove("hidden");
+          wordDisplay.classList.remove("hidden");
+        }
+        return;
+      }
+
       const total = getTotal();
       numberDisplay.textContent = total.toString();
       wordDisplay.textContent = languageData[currentLang].words(total);
-
       numberDisplay.classList.toggle("hidden", !answerVisible);
       wordDisplay.classList.toggle("hidden", !answerVisible);
+      answerControls.classList.remove("hidden");
       speakBtn.disabled = !answerVisible;
     }
 
     function showAnswer() {
+      if (currentMode !== "free" || controlsLocked) return;
       answerVisible = true;
       updateNumber();
     }
 
     function hideAnswer() {
       answerVisible = false;
-      numberDisplay.classList.add("hidden");
-      wordDisplay.classList.add("hidden");
+      if (currentMode === "free") {
+        numberDisplay.classList.add("hidden");
+        wordDisplay.classList.add("hidden");
+      }
       speakBtn.disabled = true;
     }
 
-    function reset() {
+    answerBtn.addEventListener("click", showAnswer);
+
+    showNumberBtn.addEventListener("click", showNumberOnFrame);
+    keyNumberInput.addEventListener("input", clearInputError);
+    keyNumberInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") showNumberOnFrame();
+    });
+
+    async function showNumberOnFrame() {
+      if (controlsLocked) return;
+      const number = parseWholeNumber(keyNumberInput.value);
+      if (number === null) {
+        showInputError();
+        return;
+      }
+
+      clearInputError();
       stopAllAudio();
       hideAnswer();
-      clearInputError();
-      keyNumberInput.value = "";
-      standStage.querySelectorAll(".placed-bead").forEach(bead => bead.remove());
-      rods.forEach(rod => rod.count = 0);
+      await animateFrameToCounts(getDigits(number), [0, 1, 2]);
       updateNumber();
     }
 
-    function numberToEnglish(n) {
-      if (n === 0) return "zero";
+    resetBtn.addEventListener("click", async () => {
+      if (controlsLocked) return;
+      stopAllAudio();
+      clearInputError();
+      keyNumberInput.value = "";
+      hideAnswer();
+      await animateFrameToCounts([0, 0, 0], [2, 1, 0]);
+      updateNumber();
+    });
 
-      const ones = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-                    "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
-                    "seventeen", "eighteen", "nineteen"];
-      const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+    async function animateFrameToCounts(targetCounts, order) {
+      const token = ++animationToken;
+      setControlsLocked(true);
+      try {
+        for (const rodIndex of order) {
+          if (token !== animationToken) return;
+          const target = targetCounts[rodIndex];
+          if (rods[rodIndex].count === target) continue;
+          setActiveRod(rodIndex);
 
-      function under100(num) {
-        if (num < 20) return ones[num];
-        const t = Math.floor(num / 10);
-        const o = num % 10;
-        return tens[t] + (o ? " " + ones[o] : "");
-      }
+          while (rods[rodIndex].count > target) {
+            if (token !== animationToken) return;
+            await removeBeadFromRod(rodIndex, { animate: true, sound: true });
+            updateNumber();
+            await wait(stepDelay(45));
+          }
 
-      function under1000(num) {
-        if (num < 100) return under100(num);
-        const h = Math.floor(num / 100);
-        const rest = num % 100;
-        return ones[h] + " hundred" + (rest ? " " + under100(rest) : "");
-      }
+          while (rods[rodIndex].count < target) {
+            if (token !== animationToken) return;
+            addBeadToRod(rodIndex, { animate: true, sound: true });
+            updateNumber();
+            await wait(stepDelay(58));
+          }
 
-      if (n < 1000) return under1000(n);
-
-      const th = Math.floor(n / 1000);
-      const rest = n % 1000;
-      return numberToEnglish(th) + " thousand" + (rest ? " " + under1000(rest) : "");
-    }
-
-    function numberToMalay(n) {
-      if (n === 0) return "sifar";
-
-      const ones = ["sifar", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "lapan", "sembilan"];
-
-      function under100(num) {
-        if (num < 10) return ones[num];
-        if (num === 10) return "sepuluh";
-        if (num === 11) return "sebelas";
-        if (num < 20) return ones[num - 10] + " belas";
-
-        const puluh = Math.floor(num / 10);
-        const sa = num % 10;
-        return ones[puluh] + " puluh" + (sa ? " " + ones[sa] : "");
-      }
-
-      function under1000(num) {
-        if (num < 100) return under100(num);
-
-        const ratus = Math.floor(num / 100);
-        const baki = num % 100;
-
-        // Place-value teaching style:
-        // 100 = satu ratus, not seratus
-        let text = ones[ratus] + " ratus";
-        if (baki > 0) text += " " + under100(baki);
-        return text;
-      }
-
-      if (n < 1000) return under1000(n);
-
-      const ribu = Math.floor(n / 1000);
-      const baki = n % 1000;
-
-      // Place-value teaching style:
-      // 1000 = satu ribu, not seribu
-      let text = under1000(ribu) + " ribu";
-      if (baki > 0) text += " " + under1000(baki);
-      return text;
-    }
-
-    function numberToChinese(n) {
-      const digit = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
-
-      if (n === 0) return "零";
-
-      const h = Math.floor(n / 100);
-      const t = Math.floor((n % 100) / 10);
-      const o = n % 10;
-
-      let text = "";
-
-      if (h > 0) {
-        text += digit[h] + "百";
-
-        if (t === 0 && o > 0) {
-          text += "零" + digit[o];
-        } else if (t > 0) {
-          text += digit[t] + "十";
-          if (o > 0) text += digit[o];
+          await wait(stepDelay(70));
         }
-      } else {
-        if (t > 0) {
-          text += (t === 1 ? "" : digit[t]) + "十";
-          if (o > 0) text += digit[o];
-        } else if (o > 0) {
-          text += digit[o];
+      } finally {
+        if (token === animationToken) {
+          setControlsLocked(false);
+          clearActiveRod(130);
+          updateNumber();
         }
       }
-
-      return text;
     }
 
+    function setControlsLocked(locked) {
+      controlsLocked = locked;
+      showNumberBtn.disabled = locked;
+      resetBtn.disabled = locked;
+      answerBtn.disabled = locked;
+      languageSelect.disabled = locked;
+      soundToggle.disabled = locked;
+      keyNumberInput.disabled = locked;
+      freeModeBtn.disabled = locked;
+      practiceModeBtn.disabled = locked;
+      difficultySelect.disabled = locked;
+      customQuestionInput.disabled = locked;
+      newQuestionBtn.disabled = locked;
+      checkAnswerBtn.disabled = locked;
+      hintBtn.disabled = locked;
+      sources.forEach(source => source.disabled = locked);
+    }
 
+    let beadAudioContext = null;
+    let beadSoundBuffer = null;
+    let beadSoundDecodePromise = null;
+    let lastBeadSoundAt = 0;
+    let soundEnabled = readSoundPreference();
 
-    // Preload common BM audio files so phone playback feels faster after the page opens.
-    const bmCommonAudioWords = [
-      "sifar", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "lapan", "sembilan",
-      "sepuluh", "sebelas", "belas", "puluh", "ratus", "ribu", "juta"
-    ];
-    const bmAudioUrlCache = new Map();
+    const beadSoundDataPromise = fetch("assets/audio/bead/abacus-cc-by.mp3")
+      .then(response => {
+        if (!response.ok) throw new Error(`Bead sound HTTP ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .catch(error => {
+        console.warn("Recorded bead sound could not be loaded; using synthesized fallback.", error);
+        return null;
+      });
 
-    function getBmAudioCandidatePaths(name) {
-      const forms = makeMalayFileNameVariants(name, true);
-      const extensions = [".MP3", ".mp3", ".Mp3"];
-      const paths = [];
-
-      for (const form of forms) {
-        for (const ext of extensions) {
-          paths.push(`assets/audio/bm/${form}${ext}`);
-        }
+    function readSoundPreference() {
+      try {
+        return localStorage.getItem("bead-math-sound") !== "off";
+      } catch {
+        return true;
       }
-
-      return paths;
     }
 
-    function preloadMalayAudio() {
-      bmCommonAudioWords.forEach(word => {
-        getBmAudioCandidatePaths(word).forEach(src => {
-          const audio = new Audio();
-          audio.preload = "auto";
-          audio.src = src;
-          audio.load();
+    function saveSoundPreference() {
+      try {
+        localStorage.setItem("bead-math-sound", soundEnabled ? "on" : "off");
+      } catch {
+        // Sound remains available even if storage is blocked.
+      }
+    }
+
+    function updateSoundToggle() {
+      const text = uiText[currentLang];
+      soundToggle.setAttribute("aria-pressed", String(soundEnabled));
+      soundToggle.textContent = `${soundEnabled ? "🔊" : "🔇"} ${soundEnabled ? text.soundOn : text.soundOff}`;
+      soundToggle.setAttribute("aria-label", soundEnabled ? text.soundOn : text.soundOff);
+    }
+
+    soundToggle.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      saveSoundPreference();
+      updateSoundToggle();
+      if (soundEnabled) playBeadSound("add", true);
+    });
+
+    function unlockSound() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return Promise.resolve(null);
+      if (!beadAudioContext) beadAudioContext = new AudioContextClass();
+      if (beadAudioContext.state === "suspended") {
+        return beadAudioContext.resume().then(() => beadAudioContext).catch(() => null);
+      }
+      return Promise.resolve(beadAudioContext);
+    }
+
+    async function loadBeadSoundBuffer(context) {
+      if (beadSoundBuffer) return beadSoundBuffer;
+      if (!beadSoundDecodePromise) {
+        beadSoundDecodePromise = beadSoundDataPromise
+          .then(data => data ? context.decodeAudioData(data.slice(0)) : null)
+          .then(buffer => {
+            beadSoundBuffer = buffer;
+            return buffer;
+          })
+          .catch(error => {
+            console.warn("Recorded bead sound could not be decoded; using synthesized fallback.", error);
+            return null;
+          });
+      }
+      return beadSoundDecodePromise;
+    }
+
+    function playBeadSound(kind = "add", force = false) {
+      if (!soundEnabled) return;
+      const nowMs = performance.now();
+      if (!force && nowMs - lastBeadSoundAt < 34) return;
+      lastBeadSoundAt = nowMs;
+
+      unlockSound().then(async context => {
+        if (!context || context.state !== "running") return;
+        const recordedSound = await loadBeadSoundBuffer(context);
+        if (recordedSound) {
+          const source = context.createBufferSource();
+          const gain = context.createGain();
+          source.buffer = recordedSound;
+          source.playbackRate.value = kind === "remove" ? .93 : 1.08 + Math.random() * .07;
+          gain.gain.value = kind === "remove" ? .72 : 1.05;
+          source.connect(gain).connect(context.destination);
+          source.start(context.currentTime, 2.73, .25);
+          return;
+        }
+        playSynthesizedBeadClick(context, kind);
+      });
+    }
+
+    function playSynthesizedBeadClick(context, kind) {
+      const now = context.currentTime;
+      const duration = .08;
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "triangle";
+      oscillator.frequency.setValueAtTime(kind === "remove" ? 480 : 760, now);
+      oscillator.frequency.exponentialRampToValueAtTime(kind === "remove" ? 310 : 430, now + duration);
+      gain.gain.setValueAtTime(.13, now);
+      gain.gain.exponentialRampToValueAtTime(.001, now + duration);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(now);
+      oscillator.stop(now + duration);
+    }
+
+    function playPracticeFeedbackSound(result) {
+      if (!soundEnabled) return;
+      unlockSound().then(context => {
+        if (!context || context.state !== "running") return;
+        const isCorrect = result === "correct";
+        const notes = isCorrect
+          ? [[523.25, 0, .16], [659.25, .09, .18], [783.99, .18, .24]]
+          : [[293.66, 0, .18], [246.94, .13, .24]];
+        notes.forEach(([frequency, offset, duration]) => {
+          const start = context.currentTime + offset;
+          const oscillator = context.createOscillator();
+          const gain = context.createGain();
+          oscillator.type = isCorrect ? "sine" : "triangle";
+          oscillator.frequency.setValueAtTime(frequency, start);
+          gain.gain.setValueAtTime(.001, start);
+          gain.gain.exponentialRampToValueAtTime(isCorrect ? .12 : .075, start + .015);
+          gain.gain.exponentialRampToValueAtTime(.001, start + duration);
+          oscillator.connect(gain).connect(context.destination);
+          oscillator.start(start);
+          oscillator.stop(start + duration + .02);
         });
       });
     }
 
-    // Android / iPhone usually allows better loading after first touch.
-    window.addEventListener("load", () => {
-      setTimeout(preloadMalayAudio, 300);
-    }, { once: true });
+    function numberToEnglish(number) {
+      const ones = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+        "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+      const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+      const under100 = value => value < 20 ? ones[value] : tens[Math.floor(value / 10)] + (value % 10 ? " " + ones[value % 10] : "");
+      if (number < 100) return under100(number);
+      const hundreds = Math.floor(number / 100);
+      const rest = number % 100;
+      return ones[hundreds] + " hundred" + (rest ? " " + under100(rest) : "");
+    }
 
+    function numberToMalay(number) {
+      if (number === 0) return "sifar";
+      const ones = ["sifar", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "lapan", "sembilan"];
+      function under100(value) {
+        if (value < 10) return ones[value];
+        if (value === 10) return "sepuluh";
+        if (value === 11) return "sebelas";
+        if (value < 20) return ones[value - 10] + " belas";
+        const tens = Math.floor(value / 10);
+        const rest = value % 10;
+        return ones[tens] + " puluh" + (rest ? " " + ones[rest] : "");
+      }
+      if (number < 100) return under100(number);
+      const hundreds = Math.floor(number / 100);
+      const rest = number % 100;
+      return ones[hundreds] + " ratus" + (rest ? " " + under100(rest) : "");
+    }
+
+    function numberToChinese(number) {
+      const digits = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+      if (number === 0) return "零";
+      const hundreds = Math.floor(number / 100);
+      const tens = Math.floor((number % 100) / 10);
+      const ones = number % 10;
+      let text = "";
+      if (hundreds > 0) text += digits[hundreds] + "百";
+      if (tens > 0) {
+        if (tens === 1 && hundreds === 0) text += "十";
+        else text += digits[tens] + "十";
+      } else if (hundreds > 0 && ones > 0) {
+        text += "零";
+      }
+      if (ones > 0) text += digits[ones];
+      return text;
+    }
+
+    const bmAudioWords = [
+      "sifar", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "lapan", "sembilan",
+      "sepuluh", "sebelas", "belas", "puluh", "ratus", "ribu"
+    ];
+    const bmAudioUrlCache = new Map(bmAudioWords.map(word => [word, `assets/audio/bm/${word}.MP3`]));
+    let bmPreloadStarted = false;
+    let currentAudio = null;
+    let bmAudioToken = 0;
+
+    function preloadMalayAudio() {
+      if (bmPreloadStarted) return;
+      bmPreloadStarted = true;
+      bmAudioUrlCache.forEach(src => {
+        const audio = new Audio();
+        audio.preload = "auto";
+        audio.src = src;
+        audio.load();
+      });
+    }
+
+    window.addEventListener("load", () => setTimeout(preloadMalayAudio, 300), { once: true });
     document.addEventListener("pointerdown", event => {
-      if (event.target.closest("#speakBtn")) return;
-      preloadMalayAudio();
+      if (!event.target.closest("#speakBtn")) preloadMalayAudio();
     }, { once: true });
 
     speakBtn.addEventListener("click", speakCurrentAnswer);
 
     async function speakCurrentAnswer() {
-      if (!answerVisible) return;
-
+      if (currentMode !== "free" || !answerVisible) return;
       const total = getTotal();
       const text = languageData[currentLang].words(total);
       if (!text) return;
 
-      // BM uses your own Malaysia Malay MP3 files from assets/audio/bm/
       if (currentLang === "bm") {
         window.speechSynthesis?.cancel();
         await playMalayMp3Sequence(text);
         return;
       }
 
-      // EN and ZH use browser TTS.
       if (!("speechSynthesis" in window)) return;
-
       window.speechSynthesis.cancel();
-
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = languageData[currentLang].speechLang;
       utterance.voice = getPreferredVoice(currentLang);
-
-      if (currentLang === "zh") {
-        utterance.rate = 0.85;
-        utterance.pitch = 1.05;
-      } else {
-        // EN voice tuning only.
-        // Slower and softer than before, so it sounds less robotic.
-        utterance.rate = 0.88;
-        utterance.pitch = 1.05;
-      }
-
+      utterance.rate = currentLang === "zh" ? .85 : .88;
+      utterance.pitch = 1.05;
       window.speechSynthesis.speak(utterance);
     }
 
     function stopAllAudio() {
-      bmAudioToken++;
+      bmAudioToken += 1;
       if (currentAudio) {
         currentAudio.pause();
         currentAudio.currentTime = 0;
@@ -1071,193 +1961,60 @@
     }
 
     async function playMalayMp3Sequence(text) {
-      bmAudioToken++;
+      bmAudioToken += 1;
       const token = bmAudioToken;
-
       if (currentAudio) {
         currentAudio.pause();
         currentAudio.currentTime = 0;
       }
 
-      const chunks = makeMalayAudioChunks(text);
+      const words = text.trim().toLowerCase().split(/\s+/).flatMap(word => {
+        if (word === "seratus") return ["satu", "ratus"];
+        if (word === "seribu") return ["satu", "ribu"];
+        return [word];
+      });
 
-      for (const chunk of chunks) {
+      for (const word of words) {
         if (token !== bmAudioToken) return;
-        await playMalayChunkMp3(chunk, token);
-        await wait(0);
+        const src = bmAudioUrlCache.get(word);
+        if (!src) continue;
+        await playOneMalayMp3(src, token);
       }
     }
 
-    function makeMalayAudioChunks(text) {
-      const rawWords = text.trim().toLowerCase().split(/\s+/).filter(Boolean);
-      const chunks = [];
-
-      for (const word of rawWords) {
-        // Keep compatibility if old wording ever appears.
-        if (word === "seratus") {
-          chunks.push("satu", "ratus");
-          continue;
-        }
-        if (word === "seribu") {
-          chunks.push("satu", "ribu");
-          continue;
-        }
-        if (word === "sejuta") {
-          chunks.push("satu", "juta");
-          continue;
-        }
-
-        // For 12-19, play as separate chunks:
-        // dua + belas, tiga + belas, etc.
-        // This is faster than trying many phrase filenames first.
-        chunks.push(word);
-      }
-
-      return chunks;
-    }
-
-    async function playMalayChunkMp3(chunk, token) {
-      // First try a phrase file for 12-19, e.g.:
-      // dua belas.MP3 / dua_belas.MP3 / dua-belas.MP3 / duabelas.MP3
-      const phraseOk = await playMalayFileMp3(chunk, token, true);
-      if (phraseOk) return true;
-
-      // If phrase file is missing, fall back to separate word files:
-      // dua.MP3 + belas.MP3
-      if (chunk.includes(" ")) {
-        let anyOk = false;
-        const parts = chunk.split(/\s+/).filter(Boolean);
-        for (const part of parts) {
-          if (token !== bmAudioToken) return false;
-          const ok = await playMalayFileMp3(part, token, false);
-          anyOk = anyOk || ok;
-          await wait(0);
-        }
-        return anyOk;
-      }
-
-      return false;
-    }
-
-    async function playMalayFileMp3(name, token, allowPhraseVariants) {
-      const forms = makeMalayFileNameVariants(name, allowPhraseVariants);
-      const extensions = [".MP3", ".mp3", ".Mp3"];
-
-      for (const form of forms) {
-        for (const ext of extensions) {
-          const src = `assets/audio/bm/${form}${ext}`;
-
-          // If this word already worked before, try that exact URL first next time.
-          if (bmAudioUrlCache.get(name) === src) {
-            const ok = await playOneMp3(src, token);
-            if (ok) return true;
-          }
-
-          const ok = await playOneMp3(src, token);
-          if (ok) {
-            bmAudioUrlCache.set(name, src);
-            return true;
-          }
-        }
-      }
-
-      console.warn("Missing BM audio file:", name);
-      return false;
-    }
-
-    function makeMalayFileNameVariants(name, allowPhraseVariants) {
-      const clean = name.trim().toLowerCase().replace(/\s+/g, " ");
-      const variants = [clean];
-
-      if (allowPhraseVariants && clean.includes(" ")) {
-        variants.push(
-          clean.replace(/\s+/g, "_"),
-          clean.replace(/\s+/g, "-"),
-          clean.replace(/\s+/g, "")
-        );
-      }
-
-      return [...new Set(variants)];
-    }
-
-    function playOneMp3(src, token) {
+    function playOneMalayMp3(src, token) {
       return new Promise(resolve => {
         if (token !== bmAudioToken) return resolve(false);
-
         const audio = new Audio(src);
         currentAudio = audio;
-
-        // Faster BM MP3 playback for mobile.
+        audio.preload = "auto";
         audio.playbackRate = 1.18;
-
         audio.onended = () => resolve(true);
         audio.onerror = () => resolve(false);
-
-        audio.play().catch(err => {
-          console.warn("Audio play blocked or failed:", err);
-          resolve(false);
-        });
+        audio.play().catch(() => resolve(false));
       });
-    }
-
-    function wait(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     function getPreferredVoice(lang) {
       const voices = window.speechSynthesis.getVoices();
-
-      const femaleKeywords = [
-        "female", "woman", "girl",
-        "zira", "aria", "jenny", "samantha", "victoria", "susan",
-        "karen", "moira", "tessa"
-      ];
-
-      function soundsFemale(voice) {
-        const name = voice.name.toLowerCase();
-        return femaleKeywords.some(keyword => name.includes(keyword));
-      }
-
-      function byLang(code) {
-        return voices.filter(v => v.lang.toLowerCase() === code.toLowerCase());
-      }
-
-      function byLangPrefix(prefix) {
-        return voices.filter(v => v.lang.toLowerCase().startsWith(prefix.toLowerCase()));
-      }
-
-      function chooseFemale(list) {
-        return list.find(soundsFemale) || list[0] || null;
-      }
-
-      if (lang === "en") {
-        const list = byLang("en-US").concat(byLang("en-GB")).concat(byLangPrefix("en"));
-        return chooseFemale(list);
-      }
-
-      if (lang === "zh") {
-        const list = byLang("zh-CN")
-          .concat(byLang("zh-TW"))
-          .concat(byLang("zh-HK"))
-          .concat(byLangPrefix("zh"));
-        return list[0] || null;
-      }
-
+      const femaleKeywords = ["female", "woman", "girl", "zira", "aria", "jenny", "samantha", "victoria", "susan", "karen", "moira", "tessa", "siti", "yasmin", "ayu"];
+      const soundsFemale = voice => femaleKeywords.some(keyword => voice.name.toLowerCase().includes(keyword));
+      const byExact = code => voices.filter(voice => voice.lang.toLowerCase() === code.toLowerCase());
+      const byPrefix = prefix => voices.filter(voice => voice.lang.toLowerCase().startsWith(prefix.toLowerCase()));
+      const choose = list => list.find(soundsFemale) || list[0] || null;
+      if (lang === "en") return choose([...byExact("en-US"), ...byExact("en-GB"), ...byPrefix("en")]);
+      if (lang === "zh") return choose([...byExact("zh-CN"), ...byExact("zh-TW"), ...byExact("zh-HK"), ...byPrefix("zh")]);
       return null;
     }
 
     if ("speechSynthesis" in window) {
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-      };
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     }
 
-
+    updateRodGeometry();
     setLanguage("en");
-      // BM audio tuning: word gap = 0ms, playbackRate = 1.18, teen fallback enabled
-      // BM mobile preload enabled: common MP3 files preload after page open / first touch.
-      // Audio load optimized: no phrase-file 404 attempts for 12-19; .MP3 tried first; preload/cache kept.
-      // Update: language buttons changed to dropdown; BM reset changed to Mula Semula; number key-in can set the bead frame from 0 to 999; speaker disabled until Answer.
+    updateCustomQuestionControls();
+    updateNumber();
   </script>
 </body>
 </html>
